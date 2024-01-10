@@ -1,5 +1,6 @@
 import torch
 
+from BigramLanguageModel import BigramLanguageModel
 from DataSet import DataSet
 from Vectoriser import Vectoriser
 
@@ -15,7 +16,7 @@ vectoriser = Vectoriser(text)
 data_set = DataSet(vectoriser.data)
 
 xb, yb = data_set.get_train_batch()
-print(xb.shape)
-print(xb)
-print(yb.shape)
-print(yb)
+m = BigramLanguageModel(vectoriser.vocab_size)
+logits, loss = m(xb, yb)
+print(logits.shape)
+print(loss)
