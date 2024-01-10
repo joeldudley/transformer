@@ -18,5 +18,6 @@ data_set = DataSet(vectoriser.data)
 xb, yb = data_set.get_train_batch()
 m = BigramLanguageModel(vectoriser.vocab_size)
 logits, loss = m(xb, yb)
-print(logits.shape)
-print(loss)
+
+idx = torch.zeros((1, 1), dtype=torch.long)
+print(vectoriser.decode(m.generate(idx, tokens_to_generate=100)[0].tolist()))
