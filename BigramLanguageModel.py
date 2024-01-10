@@ -6,12 +6,12 @@ from torch.nn import functional
 class BigramLanguageModel(nn.Module):
     def __init__(self, vocab_size: int):
         super().__init__()
+        # We initialise our embedding randomly.
         self.token_embedding_table = nn.Embedding(vocab_size, vocab_size)
 
-    def forward(self, blocks: Tensor, targets: Tensor) -> (Tensor, Tensor):
+    def forward(self, blocks: Tensor, targets: Tensor) -> Tensor:
         per_char_logits = self.token_embedding_table(blocks)
-        loss = self._cross_entropy(per_char_logits, targets)
-        return per_char_logits, loss  # todo - do we need to return the per-char logits?
+        return self._cross_entropy(per_char_logits, targets)
 
     def generate(self, initial_chars: Tensor, tokens_to_generate: int):
         chars = initial_chars
@@ -27,7 +27,7 @@ class BigramLanguageModel(nn.Module):
 
     @staticmethod
     def _cross_entropy(per_char_logits: Tensor, targets: Tensor) -> Tensor:
-        # Reshaping the logits and targets to the format cross_entropy requires
+        # Reshaping the logits and targets to the dimensions required by cross_entropy.
         batch_dim, block_dim, vocab_size_dim = per_char_logits.shape
         per_char_logits = per_char_logits.view(batch_dim * block_dim, vocab_size_dim)
         targets = targets.view(batch_dim * block_dim)
