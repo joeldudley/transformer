@@ -20,7 +20,7 @@ class Model:
             self._update_gradients(loss)
 
             if (step + 1) % EVAL_FREQ == 0:
-                self._estimate_loss(step)
+                self._print_average_loss(step)
 
     def generate(self, token_qty: int):
         context = torch.zeros((1, 1), dtype=torch.long)
@@ -41,7 +41,7 @@ class Model:
         return self.learner(xb, yb)
 
     @torch.no_grad()
-    def _estimate_loss(self, step: int):
+    def _print_average_loss(self, step: int):
         self.learner.eval()
 
         train_loss = sum(self._loss_from_rand_batch_train().item() / EVAL_FREQ for _ in range(EVAL_FREQ))
