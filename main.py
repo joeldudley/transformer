@@ -1,4 +1,5 @@
 import torch
+from torch import Tensor
 
 from BigramLanguageModel import BigramLanguageModel
 from DataSet import DataSet
@@ -17,17 +18,19 @@ data_set = DataSet(vectoriser.data)
 model = BigramLanguageModel(vectoriser.vocab_size)
 
 
-def training_step():
-    xb, yb = data_set.get_train_batch()
-    loss = model(xb, yb)
+def update_gradients(loss: Tensor):
     model.optimiser.zero_grad(set_to_none=True)
     loss.backward()
     model.optimiser.step()
-    print(loss.item())
 
 
-for steps in range(10000):
-    training_step()
+def train(steps: int):
+    for _ in range(steps):
+        xb, yb = data_set.get_train_batch()
+        loss = model(xb, yb)
+        update_gradients(loss)
+        print(loss.item())
 
-print(vectoriser.decode(
-    model.generate(torch.zeros((1, 1), dtype=torch.long), 300)[0].tolist()))
+
+train(10000)
+print(vectoriser.decode(model.generate(torch.zeros((1, 1), dtype=torch.long), 300)[0].tolist()))
