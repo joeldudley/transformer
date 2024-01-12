@@ -5,7 +5,7 @@ from torch.nn import functional, Embedding
 LEARNING_RATE = 1e-3
 
 
-class BigramLanguageModel(nn.Module):
+class Learner(nn.Module):
     def __init__(self, vocab_size: int):
         super().__init__()
         self.token_embedding_table = self._get_random_embeddings(vocab_size)
