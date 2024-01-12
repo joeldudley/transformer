@@ -5,7 +5,7 @@ from DataSet import DataSet
 from Learner import Learner
 from Vectoriser import Vectoriser
 
-EVAL_FREQ = 200
+EVAL_FREQ = 1000
 
 
 class Model:
@@ -15,18 +15,12 @@ class Model:
         self.learner = Learner(self.vectoriser.vocab_size)
 
     def train(self, steps: int):
-        total_loss = 0
-
         for step in range(steps):
-            xb, yb = self.data_set.get_train_batch()
-            loss = self.learner(xb, yb)
+            loss = self._loss_from_rand_batch_train()
             self._update_gradients(loss)
-            total_loss += loss.item()
 
             if (step + 1) % EVAL_FREQ == 0:
-                rounded_loss = "%.2f" % (total_loss / EVAL_FREQ)
-                total_loss = 0
-                print(f"Step {step + 1}: {rounded_loss}")
+                self._estimate_loss(step)
 
     def generate(self, token_qty: int):
         context = torch.zeros((1, 1), dtype=torch.long)
@@ -37,3 +31,20 @@ class Model:
         self.learner.optimiser.zero_grad(set_to_none=True)
         loss.backward()
         self.learner.optimiser.step()
+
+    def _loss_from_rand_batch_train(self) -> Tensor:
+        xb, yb = self.data_set.get_train_batch()
+        return self.learner(xb, yb)
+
+    def _loss_from_rand_batch_validation(self) -> Tensor:
+        xb, yb = self.data_set.get_validation_batch()
+        return self.learner(xb, yb)
+
+    def _estimate_loss(self, step: int):
+        self.learner.eval()
+
+        train_loss = sum(self._loss_from_rand_batch_train().item() / EVAL_FREQ for _ in range(EVAL_FREQ))
+        validation_loss = sum(self._loss_from_rand_batch_validation().item() / EVAL_FREQ for _ in range(EVAL_FREQ))
+        print(f"Step {step + 1}: {'%.2f' % train_loss}, {'%.2f' % validation_loss}")
+
+        self.learner.train()
