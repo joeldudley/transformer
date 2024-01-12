@@ -18,10 +18,11 @@ class Model:
             loss = self.learner(xb, yb)
             self._update_gradients(loss)
             rounded_loss = "%.2f" % loss.item()
-            print(f"Step {step+1}: {rounded_loss}")
+            print(f"Step {step + 1}: {rounded_loss}")
 
     def generate(self, token_qty: int):
-        tokens = self.learner.generate(torch.zeros((1, 1), dtype=torch.long), token_qty)[0].tolist()
+        context = torch.zeros((1, 1), dtype=torch.long)
+        tokens = self.learner.generate(context, token_qty)[0].tolist()
         return self.vectoriser.decode(tokens)
 
     def _update_gradients(self, loss: Tensor):
