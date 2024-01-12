@@ -2,11 +2,14 @@ import torch
 from torch import nn, Tensor
 from torch.nn import functional, Embedding
 
+LEARNING_RATE = 1e-3
+
 
 class BigramLanguageModel(nn.Module):
     def __init__(self, vocab_size: int):
         super().__init__()
         self.token_embedding_table = self._get_random_embeddings(vocab_size)
+        self.optimiser = torch.optim.AdamW(self.parameters(), lr=LEARNING_RATE)
 
     def forward(self, blocks: Tensor, targets: Tensor) -> Tensor:
         per_token_logits = self.token_embedding_table(blocks)
@@ -16,12 +19,12 @@ class BigramLanguageModel(nn.Module):
         output_tokens = initial_tokens
 
         for _ in range(tokens_to_generate):
-            next_token = self.generate_next_token(output_tokens)
+            next_token = self._generate_next_token(output_tokens)
             output_tokens = torch.cat((output_tokens, next_token), dim=1)
 
         return output_tokens
 
-    def generate_next_token(self, output_chars) -> Tensor:
+    def _generate_next_token(self, output_chars) -> Tensor:
         next_token_logits = self.token_embedding_table(output_chars)[:, -1, :]
         next_token_probs = functional.softmax(next_token_logits, dim=1)
         return torch.multinomial(next_token_probs, num_samples=1)

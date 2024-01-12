@@ -14,10 +14,20 @@ with open(DATA_PATH, 'r', encoding='utf-8') as f:
 
 vectoriser = Vectoriser(text)
 data_set = DataSet(vectoriser.data)
+model = BigramLanguageModel(vectoriser.vocab_size)
 
-xb, yb = data_set.get_train_batch()
-m = BigramLanguageModel(vectoriser.vocab_size)
-loss = m(xb, yb)
 
-idx = torch.zeros((1, 1), dtype=torch.long)
-print(vectoriser.decode(m.generate(idx, tokens_to_generate=100)[0].tolist()))
+def training_step():
+    xb, yb = data_set.get_train_batch()
+    loss = model(xb, yb)
+    model.optimiser.zero_grad(set_to_none=True)
+    loss.backward()
+    model.optimiser.step()
+    print(loss.item())
+
+
+for steps in range(10000):
+    training_step()
+
+print(vectoriser.decode(
+    model.generate(torch.zeros((1, 1), dtype=torch.long), 300)[0].tolist()))

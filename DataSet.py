@@ -1,7 +1,7 @@
 import torch
 from torch import Tensor
 
-BATCH_SIZE = 4
+BATCH_SIZE = 32
 BLOCK_SIZE = 8
 VALIDATION_SPLIT = 0.9
 
