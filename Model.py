@@ -40,6 +40,7 @@ class Model:
         xb, yb = self.data_set.get_validation_batch()
         return self.learner(xb, yb)
 
+    @torch.no_grad()
     def _estimate_loss(self, step: int):
         self.learner.eval()
 
